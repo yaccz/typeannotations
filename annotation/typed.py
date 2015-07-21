@@ -466,6 +466,9 @@ def _check_argument_types(signature, *args, **kwargs):
         if not _check_type_constraint(value, annotation):
             raise TypeError('Incorrect type for "{0}"'.format(name))
 
+class IncorrectReturnType(TypeError):
+  def __str__(self):
+    return 'expected: {!r} actual: {!r}'.format(*self.args)
 
 def _check_return_type(signature, return_value):
     """Check that the return value of a function matches the signature."""
@@ -473,7 +476,7 @@ def _check_return_type(signature, return_value):
     if annotation is EMPTY_ANNOTATION:
         annotation = AnyType
     if not _check_type_constraint(return_value, annotation):
-        raise TypeError('Incorrect return type')
+        raise IncorrectReturnType(annotation, return_value)
     return return_value
 
 

@@ -2,7 +2,7 @@ import unittest
 from collections import namedtuple
 
 from annotation.typed import (typechecked, Interface, union, AnyType, predicate,
-    optional, typedef, options, only)
+    optional, typedef, options, only, IncorrectReturnType)
 
 
 
@@ -178,8 +178,8 @@ class TypecheckedTest(unittest.TestCase):
             return a
 
         self.assertEqual(1, test(1))
-        self.assertRaises(TypeError, test, 'string')
-        self.assertRaises(TypeError, test, 1.2)
+        self.assertRaises(IncorrectReturnType, test, 'string')
+        self.assertRaises(IncorrectReturnType, test, 1.2)
 
     def test_return_with_class(self):
 
@@ -195,7 +195,7 @@ class TypecheckedTest(unittest.TestCase):
             return 1
 
         self.assertIsInstance(test1(), MyClass)
-        self.assertRaises(TypeError, test2)
+        self.assertRaises(IncorrectReturnType, test2)
 
     def test_return_with_sublass(self):
 
@@ -211,7 +211,7 @@ class TypecheckedTest(unittest.TestCase):
             return 1
 
         self.assertIsInstance(test1(), MyClass)
-        self.assertRaises(TypeError, test2)
+        self.assertRaises(IncorrectReturnType, test2)
 
     def test_return_with_union(self):
 
@@ -221,7 +221,7 @@ class TypecheckedTest(unittest.TestCase):
 
         self.assertEqual(1, test(1))
         self.assertEqual(1.1, test(1.1))
-        self.assertRaises(TypeError, test, 'string')
+        self.assertRaises(IncorrectReturnType, test, 'string')
 
     def test_return_with_interface(self):
 
@@ -244,7 +244,7 @@ class TypecheckedTest(unittest.TestCase):
             return 1
 
         self.assertIsInstance(test1(), TestImplementation)
-        self.assertRaises(TypeError, test2)
+        self.assertRaises(IncorrectReturnType, test2)
 
     def test_return_with_none_value(self):
 
@@ -252,7 +252,7 @@ class TypecheckedTest(unittest.TestCase):
         def test(a) -> int:
             return a
 
-        self.assertRaises(TypeError, test, None)
+        self.assertRaises(IncorrectReturnType, test, None)
 
     def test_complex_types(self):
         simple_types = [ 'a', 1, None, 1.1, False ]
@@ -333,7 +333,7 @@ class TypecheckedTest(unittest.TestCase):
                 @typechecked
                 def test(a) -> check.test:
                     return value
-                self.assertRaises(TypeError, test, value)
+                self.assertRaises(IncorrectReturnType, test, value)
 
 class UnionTest(unittest.TestCase):
 
