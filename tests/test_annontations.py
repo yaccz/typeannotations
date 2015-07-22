@@ -2,8 +2,7 @@ import unittest
 from collections import namedtuple
 
 from annotation.typed import (typechecked, Interface, union, AnyType, predicate,
-    optional, typedef, options, only, IncorrectReturnType)
-
+    optional, typedef, options, only, IncorrectReturnType, IncorrectArgument)
 
 
 class TypecheckedTest(unittest.TestCase):
@@ -15,8 +14,8 @@ class TypecheckedTest(unittest.TestCase):
             return a
 
         self.assertEqual(1, test(1))
-        self.assertRaises(TypeError, test, 'string')
-        self.assertRaises(TypeError, test, 1.2)
+        self.assertRaises(IncorrectArgument, test, 'string')
+        self.assertRaises(IncorrectArgument, test, 1.2)
 
     def test_single_argument_with_class(self):
 
@@ -29,7 +28,7 @@ class TypecheckedTest(unittest.TestCase):
 
         value = MyClass()
         self.assertEqual(value, test(value))
-        self.assertRaises(TypeError, test, 'string')
+        self.assertRaises(IncorrectArgument, test, 'string')
 
     def test_single_argument_with_subclass(self):
 
@@ -42,7 +41,7 @@ class TypecheckedTest(unittest.TestCase):
 
         value = MySubClass()
         self.assertEqual(value, test(value))
-        self.assertRaises(TypeError, test, 'string')
+        self.assertRaises(IncorrectArgument, test, 'string')
 
     def test_single_argument_with_union_annotation(self):
         from decimal import Decimal
@@ -54,7 +53,7 @@ class TypecheckedTest(unittest.TestCase):
         self.assertEqual(1, test(1))
         self.assertEqual(1.5, test(1.5))
         self.assertEqual(Decimal('2.5'), test(Decimal('2.5')))
-        self.assertRaises(TypeError, test, 'string')
+        self.assertRaises(IncorrectArgument, test, 'string')
 
     def test_single_argument_with_predicate_annotation(self):
 
@@ -63,7 +62,7 @@ class TypecheckedTest(unittest.TestCase):
             return a
 
         self.assertEqual(1, test(1))
-        self.assertRaises(TypeError, test, 0)
+        self.assertRaises(IncorrectArgument, test, 0)
 
     def test_single_argument_with_optional_annotation(self):
 
@@ -91,7 +90,7 @@ class TypecheckedTest(unittest.TestCase):
             pass
 
         self.assertEqual({}, test(f1))
-        self.assertRaises(TypeError, test, f2)
+        self.assertRaises(IncorrectArgument, test, f2)
 
     def test_single_argument_with_options_annotation(self):
 
@@ -101,7 +100,7 @@ class TypecheckedTest(unittest.TestCase):
 
         self.assertEqual('open', test('open'))
         self.assertEqual('write', test('write'))
-        self.assertRaises(TypeError, test, 'other')
+        self.assertRaises(IncorrectArgument, test, 'other')
 
     def test_single_argument_with_only_annotation(self):
 
@@ -110,7 +109,7 @@ class TypecheckedTest(unittest.TestCase):
             return a
 
         self.assertEqual(1, test(1))
-        self.assertRaises(TypeError, test, True)
+        self.assertRaises(IncorrectArgument, test, True)
 
     def test_single_argument_with_interface(self):
 
@@ -129,7 +128,7 @@ class TypecheckedTest(unittest.TestCase):
             return 1
 
         self.assertEqual(1, test(TestImplementation()))
-        self.assertRaises(TypeError, test, Other())
+        self.assertRaises(IncorrectArgument, test, Other())
 
     def test_single_argument_with_no_annotation(self):
 
@@ -148,9 +147,9 @@ class TypecheckedTest(unittest.TestCase):
             return a, b
 
         self.assertEqual((1, 'string'), test(1, 'string'))
-        self.assertRaises(TypeError, test, 1, 1)
-        self.assertRaises(TypeError, test, 'string', 'string')
-        self.assertRaises(TypeError, test, 'string', 1)
+        self.assertRaises(IncorrectArgument, test, 1, 1)
+        self.assertRaises(IncorrectArgument, test, 'string', 'string')
+        self.assertRaises(IncorrectArgument, test, 'string', 1)
 
     def test_single_argument_with_none_value(self):
 
@@ -158,7 +157,7 @@ class TypecheckedTest(unittest.TestCase):
         def test(a: int):
             return a
 
-        self.assertRaises(TypeError, test, None)
+        self.assertRaises(IncorrectArgument, test, None)
 
     def test_multiple_arguments_some_with_annotations(self):
 
@@ -168,8 +167,8 @@ class TypecheckedTest(unittest.TestCase):
 
         self.assertEqual((1, 'string'), test(1, 'string'))
         self.assertEqual(('string', 'string'), test('string', 'string'))
-        self.assertRaises(TypeError, test, 1, 1)
-        self.assertRaises(TypeError, test, 'string', 1)
+        self.assertRaises(IncorrectArgument, test, 1, 1)
+        self.assertRaises(IncorrectArgument, test, 'string', 1)
 
     def test_return_with_builtin_type(self):
 
@@ -328,7 +327,7 @@ class TypecheckedTest(unittest.TestCase):
                 @typechecked
                 def test(a: check.test):
                     pass
-                self.assertRaises(TypeError, test, value)
+                self.assertRaises(IncorrectArgument, test, value)
 
                 @typechecked
                 def test(a) -> check.test:

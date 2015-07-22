@@ -455,6 +455,10 @@ def _check_type_constraint(value, constraint):
     else:
         return False
 
+class IncorrectArgument(TypeError):
+  def __str__(self):
+    return '{} expected {!r} actual {!r}'.format(*self.args)
+
 def _check_argument_types(signature, *args, **kwargs):
     """Check that the arguments of a function match the given signature."""
     bound_arguments = signature.bind(*args, **kwargs)
@@ -464,7 +468,7 @@ def _check_argument_types(signature, *args, **kwargs):
         if annotation is EMPTY_ANNOTATION:
             annotation = AnyType
         if not _check_type_constraint(value, annotation):
-            raise TypeError('Incorrect type for "{0}"'.format(name))
+            raise IncorrectArgument(name, annotation, value)
 
 class IncorrectReturnType(TypeError):
   def __str__(self):
